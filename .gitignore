@@ -1,0 +1,25 @@
+# django
+__pycache__/
+*.sqlite*
+media/
+
+# MAC OS
+.DS_Store
+
+# environment variables
+.env
+venv/
+
+# static root
+static_root/
+
+# Ide files
+/.vscode
+
+# Redis
+dump.rdb
+django/dump.rdb
+
+# Celery Shedule
+celerybeat.pid
+celerybeat-schedule.db

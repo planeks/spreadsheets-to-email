@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load socialaccount static i18n %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/login.css' %}">
+{% endblock head %}
+{% block content %}
+<div class="d-flex justify-content-center align-items-center" style="height: 99vh;">
+  <div class="login-form ">
+    <form action="{% url 'account_login' %}" method="post">
+      {% csrf_token %}
+      <h2 class="text-center">{% trans 'Login in or Register' %}</h2>
+      <div class="text-center social-btn">
+        <a href="{% provider_login_url 'google' %}" class="btn btn-danger btn-block" id="google_login"><i class="fa fa-google"></i>
+          {% trans 'Sign in with Google' %}</a>
+      </div>
+  </div>
+</div>
+{% endblock content %}

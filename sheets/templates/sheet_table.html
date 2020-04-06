@@ -1,0 +1,22 @@
+{% load i18n %}
+<table class="table">
+    <thead>
+        <tr>
+            {% for head in heads %}
+            <th scope="col">{{head}}</th>
+            {% endfor%}
+
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in data %}
+        <tr class="table-row" id="table-row-{{forloop.counter0}}" onclick="loadPreview({{forloop.counter0}})">
+          {% for el in row %}
+            <td>{{el}}</th>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<input type="hidden" value="{{json_data}}" id="json_data">
+<input type="hidden" value="{{json_heads}}" id="json_heads">

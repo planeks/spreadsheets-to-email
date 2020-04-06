@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <h4>{% trans 'Spreadsheets' %}</h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-9">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">{% trans 'Title' %}</th>
+                            <th scope="col">{% trans 'Modified' %}</th>
+                            <th scope="col">{% trans 'Actions' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for spreadsheet in user.spreadsheets.all %}
+                        <tr>
+                            <th valign="middle" scope="row">{{spreadsheet.id}}</th>
+                            <td valign="middle">{{spreadsheet.title}}</td>
+                            <td valign="middle">{{spreadsheet.modified}}</td>
+                            <td valign="middle">
+                                <div class="d-flex">
+                                    <div>
+                                        <a href="{% url 'sheets:sheet_preview' spreadsheet.id%}"
+                                            class="btn text-primary p-0 mr-3">{% trans 'Preview' %}</a>
+                                    </div>
+                                    <form action="{% url 'sheets:sheet_delete' spreadsheet.id %}" method="post"
+                                        class="p-0">
+                                        {% csrf_token %}
+                                        <input type="submit" class="btn text-danger p-0" value="{% trans 'Detach' %}" />
+                                    </form>
+                                </div>
+
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4">{% trans 'No spreadsheets are created' %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+        <div class="col-md-3">
+            <form action="" method="POST" class="card">
+                <div class="card-body">
+
+                    {% csrf_token %}
+                    <legend class="pt-2"><strong>{% trans 'Link a spreadsheet' %}</strong></legend>
+                    <div class="form-group">
+                        <label for="id_spreadsheet_id"><b>{% trans 'Document link' %}</b></label>
+                        <input type="text" class="form-control" id="id_spreadsheet_id" name="spreadsheet_id"
+                            placeholder="{% trans 'Copy a document link here' %}">
+                        <small>{% trans 'Just copy a document link from your browser window' %}</small>
+                        <input type="hidden" name="user" value="{{user.id}}">
+
+                    </div>
+                    <button class="btn btn-success btn-block">{% trans 'Add new spreadsheet' %}</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock%}

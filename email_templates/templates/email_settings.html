@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="d-flex justify-content-between">
+                <h2 class="p-0 m-0">{% trans 'Email settings' %}</h2>
+                <div>
+                    <a href="{% url 'test_smtp_connection' %}"
+                        class="btn btn-danger">{% trans 'Test SMTP connection' %}</a>
+                </div>
+            </div>
+            <form action="" method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="id_test_email">{% trans 'Test email' %}</label>
+                    {{form.test_email}}
+                    <small>{% trans 'If you do not specify any SMTP settings all messages will be sended from notification@planeks.net address. Use your own SMTP if you need to use your own domain.'%}</small>
+
+                </div>
+                <div class="form-group">
+                    <label for="id_smtp_from_email">{% trans 'SMTP From Email' %}</label>
+                    {{form.smtp_from_email}}
+                </div>
+                <div class="form-group">
+                    <label for="id_smtp_host">{% trans 'SMTP Host' %}</label>
+                    {{form.smtp_host}}
+                </div>
+                <div class="form-group">
+                    <label for="id_smtp_port">{% trans 'SMTP Port' %}</label>
+                    {{form.smtp_port}}
+                </div>
+                <div class="form-group">
+                    <label for="id_smtp_username">{% trans 'SMTP Username' %}</label>
+                    {{form.smtp_username}}
+                </div>
+                <div class="form-group">
+                    <label for="id_smtp_password">{% trans 'SMTP Password' %} {% if form.smtp_password.value %}<small
+                            class="text-success">{% trans 'Saved' %}</small>{% endif %}</label>
+                    {{form.smtp_password}}
+                </div>
+                <div class="form-group d-flex justify-content-end">
+                    <button type="submit" class="btn btn-primary">{% trans 'Update settings' %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

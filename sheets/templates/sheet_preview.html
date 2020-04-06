@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block content %}
+<div class="row w-100">
+  <div class="col-md-7 w-100">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <span class="d-flex align-items-end flex-wrap">
+        <h4 class="p-0 m-0 mr-2">{{spreadsheet.title}}</h4>
+        <small class="mr-2">
+          <a target="_blank"
+            href="https://docs.google.com/spreadsheets/d/{{spreadsheet.spreadsheet_id}}/"><b>{% trans 'Open in Google Spreadsheets'%}</b></a></small>
+        <small>
+          <a href="{% url 'sheets:sheet_settings' spreadsheet.id %}"><b>{% trans 'Sheet settings' %}</b></a></small>
+      </span>
+      <button class="btn btn-primary" id="send-messages">{% trans 'Send messages' %}</button>
+    </div>
+    <div class="table-scrollable d-flex flex-column align-items-center"></div>
+  </div>
+  <div class="col-md-5">
+    <div class="d-flex justify-content-between align-items-center w-100 mb-2">
+      <span class="d-flex align-items-end flex-wrap">
+        <h4 class="p-0 m-0 mr-2">{% trans 'Preview message' %}</h4>
+        <small>
+          <a
+            href="{% url 'sheets:choose_template' %}?sheet_id={{spreadsheet.id}}"><b>{% trans 'Change a template' %}</b></a></small>
+      </span>
+      <div>
+        <button class="btn btn-light" id="test-messages">{% trans 'Test message' %}</button>
+      </div>
+    </div>
+    <div id="preview-content" class="d-flex flex-column align-items-center shadow-sm"></div>
+  </div>
+</div>
+
+{% endblock content %}
+{% block scripts %}
+<script>
+  window.localStorage.setItem("data_index", 0);
+  // Test Messages Button Click Event
+  var test_messages_button = document.getElementById('test-messages');
+  test_messages_button.addEventListener('click', testMessages);
+  // Send Messages Button Click Event
+  var test_messages_button = document.getElementById('send-messages');
+  test_messages_button.addEventListener('click', sendMessages);
+
+  function testMessages() {
+    let data_index = window.localStorage.getItem('data_index');
+    if (data_index) {
+      let url = `{% url 'sheets:sheet_send_messages' spreadsheet.id %}?data_index=${data_index}`;
+      window.location.href = url;
+    }
+  }
+
+  function sendMessages() {
+    Swal.fire({
+      title: "{% trans 'Are you sure' %}?",
+      text: "{% trans 'It will send all messages' %}",
+      icon: 'warning',
+      showCancelButton: true,
+      cancelButtonText: "{% trans 'Cancel' %}",
+      confirmButtonText: "{% trans 'Send' %}"
+    }).then(res => {
+      if (res.value) {
+        let url = `{% url 'sheets:sheet_send_messages' spreadsheet.id %}`;
+        window.location.href = url;
+      }
+    })
+  }
+
+  function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+      var cookies = document.cookie.split(";");
+      for (var i = 0; i < cookies.length; i++) {
+        var cookie = cookies[i].trim();
+        // Does this cookie string begin with the name we want?
+        if (cookie.substring(0, name.length + 1) === name + "=") {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  function loadPreview(data_index) {
+    let prev_data_index = localStorage.getItem('data_index');
+    window.localStorage.setItem("data_index", data_index);
+    let table_row = document.getElementById(`table-row-${prev_data_index}`);
+    table_row.style.background = '';
+    table_row = document.getElementById(`table-row-${data_index}`);
+    table_row.style.backgroundColor = '#f4f4f4';
+    let data = JSON.stringify(
+      JSON.parse(window.localStorage.getItem("data"))[data_index]
+    );
+    let heads = window.localStorage.getItem("heads");
+
+    var csrftoken = getCookie("csrftoken");
+    console.log(heads, data);
+    fetch("{% url 'sheets:ajax_load_preview' spreadsheet.id %}", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": csrftoken
+        },
+        body: JSON.stringify({
+          heads: heads,
+          data: data
+        })
+      })
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById("preview-content").innerHTML = html;
+      });
+  }
+  let loader =
+    `<div class="spinner-border text-primary" role="status"><span class="sr-only">{% trans 'Loading' %}...</span></div>`;
+  let spreadsheet_container = document.getElementsByClassName(
+    "table-scrollable"
+  )[0];
+  spreadsheet_container.innerHTML = loader;
+  let preview_loader =
+    `<div class="spinner-border text-danger" role="status"><span class="sr-only">{% trans 'Loading' %}...</span></div>`;
+  let preview_container = document.getElementById("preview-content");
+  preview_container.innerHTML = preview_loader;
+  spreadsheet_container.classList.add("justify-content-center");
+  preview_container.classList.add("justify-content-center");
+  fetch('{% url "sheets:ajax_load_table" spreadsheet.id %}')
+    .then(function (response) {
+      // When the page is loaded convert it to text
+      return response.text();
+    })
+    .then(function (html) {
+      document.getElementsByClassName("table-scrollable")[0].innerHTML = html;
+      let data = JSON.parse(document.getElementById("json_data").value);
+      let heads = JSON.parse(document.getElementById("json_heads").value);
+      console.log(data);
+      window.localStorage.setItem("heads", JSON.stringify(heads));
+      window.localStorage.setItem("data", JSON.stringify(data));
+      loadPreview(0);
+      spreadsheet_container.classList.remove("justify-content-center");
+      preview_container.classList.remove("justify-content-center");
+    })
+</script>
+{% endblock scripts %}

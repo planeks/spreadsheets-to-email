@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block content %}
+<div id="content">
+    <div class="d-flex justify-content-center align-items-center w-100" id="loader-container"
+        style="padding-top: 50px;">
+    </div>
+</div>
+{% endblock%}
+{% block scripts %}
+<script>
+    var content = document.getElementById('content');
+    var loader =
+        `<div class="spinner-border text-primary align-self-center" role="status"><span class="sr-only">{% trans 'Loading' %}...</span></div>`;
+    document.getElementById('loader-container').innerHTML = loader;
+    fetch('{% url "sheets:ajax_load_sheet_settings" spreadsheet_id %}').then((res) => {
+        return res.text()
+    }).then(html => {
+        content.innerHTML = html;
+    })
+</script>
+{% endblock scripts %}

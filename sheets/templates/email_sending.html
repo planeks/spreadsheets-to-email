@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block content %}
+<div class="container">
+    <div id="progress-wrapper">
+        <h3>{% trans 'Sending emails' %}</h3>
+        <b id="progress-status"></b>
+        <div class="progress">
+            <div class="progress-bar" id="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="50"
+                aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <div id="progress-bar-message">{% trans 'Please do not reload the page' %}...</div>
+    </div>
+</div>
+{% endblock content %} {% block scripts %}
+<script>
+    let progressBar = document.getElementById("progress-bar");
+    let progressStatus = document.getElementById("progress-status");
+    var total = 0;
+
+    function updateProgress(progressUrl) {
+        fetch(progressUrl).then(function (response) {
+            response.json().then(function (data) {
+                // update the appropriate UI components
+                if (data.state == "SUCCESS") {
+                    progressBar.style.width = 100 + "%";
+                    progressStatus.innerHTML =
+                        `<b>{% trans 'Progress' %}: ${total} {% trans 'of' %} ${total} {% trans 'emails' %}</b>`;
+                    Swal.fire({
+                        title: "{% trans 'Sent' %}",
+                        text: "{% trans 'All emails were sent' %}",
+                        icon: "info",
+                        showConfirmButton: false,
+                        timer: 3000
+                    }).then(() => {
+                        window.location.href = document.referrer;
+                    });
+
+                    return "success";
+                }
+                setTimeout(updateProgress, 1000, progressUrl);
+                total = data.details.total;
+                console.log(total);
+                let current = data.details.current;
+                let progress_percent = (current / total) * 100;
+
+                progressBar.style.width = progress_percent + "%";
+                progressStatus.innerHTML =
+                    `<b>{% trans 'Progress' %}: ${current} {% trans 'of' %} ${total} {% trans 'emails' %}</b>`;
+            });
+        });
+    }
+    var progressUrl = '{% url "sheets:check_messages_status" %}?job={{job_id}}';
+    updateProgress(progressUrl);
+</script>
+{% endblock scripts%}

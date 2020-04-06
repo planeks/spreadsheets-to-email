@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            {% if template_list %}
+            <div class="card">
+                <div class="card-body">
+                    <form action="" method="POST">
+                        <span class="d-flex">
+                            <h2 class="font-weight-light">{% trans 'Choose a template for' %} </h2>
+                            <h2 class="font-weight-bold ml-1">{{sheet.title}}</h2>
+                        </span>
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="id_template">{% trans 'Template' %}</label>
+                            <select name="template" id="id_template" class="form-control">
+                                {% for template in template_list %}
+                                <option value={{template.id}}
+                                    {% ifequal template sheet.template %}selected{% endifequal %}>{{template.name}}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <small>{% trans 'Or' %} <a
+                                    href="{% url 'email_templates:create_template' %}?sheet_id={{sheet.id}}">{% trans 'Create template' %}</a></small>
+
+                        </div>
+                        <button type="submit" class="btn btn-primary">{% trans 'Choose' %}</button>
+                    </form>
+                </div>
+            </div>
+
+
+            {% else %}
+            <p class="text-center">{% trans 'You have no templates, please' %} <a
+                    href="{% url 'email_templates:create_template' %}?sheet_id={{sheet.id}}">{% trans 'Create template' %}</a>
+            </p>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock content %}

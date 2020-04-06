@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <h4>{% trans 'Templates' %}</h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-9">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">{% trans 'Title' %}</th>
+                        <th scope="col">{% trans 'Modified' %}</th>
+                        <th scope="col">{% trans 'Actions' %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for template in user.templates.all %}
+                    <tr>
+                        <th valign="middle" scope="row">{{template.id}}</th>
+                        <td valign="middle">{{template.name}}</td>
+                        <td valign="middle">{{template.modified}}</td>
+                        <td valign="middle">
+                            <div class="d-flex">
+                                <a href="{% url 'email_templates:edit_template' template.id %}"
+                                    class="btn text-primary p-0 mr-3">{% trans 'Edit' %}</a>
+                                <form action="{% url 'email_templates:delete_template' template.id %}" method="post"
+                                    class="p-0">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn text-danger p-0">{% trans 'Delete' %}</a>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4">{% trans 'No templates are created' %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-3">
+            <a class="btn btn-success btn-block"
+                href="{% url 'email_templates:create_template'%}">{% trans 'Add new template' %}</a>
+        </div>
+    </div>
+</div>
+{% endblock content %}
